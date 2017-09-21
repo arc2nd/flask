@@ -1,0 +1,23 @@
+<html>
+<head>
+{% if title %}
+<title>{{ title }}</title>
+{% else %}
+<title>Welcome to P-net</title>
+{% endif %}
+</head>
+<body bgcolor=#777777 link=#00eeee alink=#ffffff vlink=#00bbbb>
+
+<h1>{{ title }}</h1>
+
+{% block content %}{% endblock %}
+
+<center>
+<a href="{{ url_for('index') }}">Index</a> | 
+<a href="{{ url_for('hello') }}">Hello</a> | 
+<a href="{{ url_for('movies') }}">Movies</a>
+</center>
+<p>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if user %}
+Hello to all!<br>
+And especially to you {{ user.username }}<br>
+{% else %}
+No user defined<br>
+We're probably in Movies<br>
+{% endif %}
+
+
+<a href="{{ url_for('index') }}">back to index</a>
+
+{% endblock %}
