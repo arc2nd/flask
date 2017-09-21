@@ -3,11 +3,22 @@
 #09/20/17
 
 import os
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, redirect, url_for
 
 app = Flask(__name__)
 
 @app.route('/')
+def index():
+    return render_template('index.html')
+@app.route('/login')
+def login():
+    form = EmailPasswordForm()
+    if form.validate_on_submit():
+        ##check psswd and log in
+        return redirect(url_for('/index'))
+    return render_template('login.html')
+
+@app.route('/index')
 def index():
     return render_template('index.html')
 
