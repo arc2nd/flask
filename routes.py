@@ -7,6 +7,8 @@ from flask import Flask, render_template, Response, redirect, url_for
 
 app = Flask(__name__)
 
+root = os.getcwd()
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -23,14 +25,27 @@ def index():
     return render_template('index.html')
 
 @app.route('/hello')
-def hello():
-    user = {'username': os.environ['USER'].title()}
-    return render_template('hello.html', title='Howdy', user=user)
+@app.route('/hello/<name>')
+def hello(name=None):
+    if not name:
+        user = {'username': os.environ['USER'].title()}
+    else:
+        user = {'username': name.title()}
+    return render_template('hello.html', title="{}'s Landing Page".format(name.title()), user=user
 
-@app.route('/movies')
-def movies():
-    dirs = os.listdir('/home/james/mp4s')
-    return render_template('movies.html', title='Movies', dirs=dirs)
+@app.route('/movies/<root>')
+def movies(root):
+    dir_contents = os.listdir(root)
+    dirs = {}
+    for e in dir_contents:
+        if os.path.isdir(os.path.join(root, e)):
+            dirs[e] = 'dir'
+        elif os.path.isfile(os.path.join(root, e)):
+            size = 5
+            dirs[e] = size
+        elif os.path.islink(os.path.join(root, e)):
+            dirs[e] = 'link'
+    return render_template('movies.html', title='Movies', root=root, dirs=dirs)
 
 @app.route('/a')
 def a():

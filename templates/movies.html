@@ -9,7 +9,12 @@ No user defined<br>
 We're probably in Movies<br>
 {% endif %}
 
+{% for this in dirs %}
+    {% if this.type == 'file' %}
+        &nbsp&nbsp&nbsp&nbsp<a href="{{ this.path }}">{{ this.name }}</a> {{ this.size }} <br>
+    {% if this.type == 'dir' %}
+        <a href="{{ this.path }}">{{ this.name }}</a>
+{% endfor %}
 
-<a href="{{ url_for('index') }}">back to index</a>
 
 {% endblock %}
