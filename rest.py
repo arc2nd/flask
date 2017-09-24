@@ -1,4 +1,4 @@
-!#/usr/bin/env python
+#!/usr/bin/env python
 
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
@@ -26,10 +26,11 @@ parser.add_argument('low')
 
 ##Define resources
 class SVG(Resource):
-    def get(self, dates):
-        start, end = dates.split('-')
+    def get(self, date=None):
+        start, end = date.split('-')
+        print('{} :: {}'.format(start, end))
         ##generate SVG text
-        return
+        return {'start':start, 'end':end}
 
 class BloodSugar(Resource):
     def post(self):
@@ -39,10 +40,12 @@ class BloodSugar(Resource):
         value = args['value']
         ##put info into mongodb
         ret_str = 'Sugar\ndate: {}\ntime: {}\nval: {}'.format(date, time, value)
-        return ret_str
+        ret_dict = {'date': date, 'time': time, 'value':value}
+        return ret_dict
 
 class BloodPressure(Resource):
     def post(self):
+        args = parser.parse_args()
         date = args['date']
         high = args['high']
         low = args['low']
@@ -52,6 +55,7 @@ class BloodPressure(Resource):
 
 class Weight(Resource):
     def post(self):
+        args = parser.parse_args()
         date = args['date']
         value = args['value']
         ##put info into mondodb
@@ -65,4 +69,4 @@ api.add_resource(BloodPressure, '/pressure')
 api.add_resource(Weight, '/weight')
 
 if __name__ == '__main__':
-    app.run(port='5002')
+    app.run(port=5002)
