@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Welcome to Parksnet</h1>
+<h1>Welcome to P-net</h1>
 
 This is where we access all our media and family stuff
 <p>
@@ -12,6 +12,9 @@ Family Members:
 <li><a href="{{ url_for('e') }}">E____</a>
 <li><a href="{{ url_for('f') }}">F____</a>
 </ul>
+
+<a href="{{ url_for('download') }}">Download</a><br>
+<a href="{{ url_for('convert') }}">Convert</a><br>
 
 {% endblock %}
 

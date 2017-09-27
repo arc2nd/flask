@@ -9,11 +9,16 @@ No user defined<br>
 We're probably in Movies<br>
 {% endif %}
 
+<!---{{ dirs }}--->
+<p>
+
 {% for this in dirs %}
     {% if this.type == 'file' %}
-        &nbsp&nbsp&nbsp&nbsp<a href="{{ this.path }}">{{ this.name }}</a> {{ this.size }} <br>
+        &nbsp&nbsp&nbsp&nbsp<a href="{{ this.path }}">{{ this.name }}</a> {{ this.size }}M <br>
+    {% endif %}
     {% if this.type == 'dir' %}
-        <a href="{{ this.path }}">{{ this.name }}</a>
+        <a href="{{ this.path }}">{{ this.name }}</a><br>
+    {% endif %}
 {% endfor %}
 
 

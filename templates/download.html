@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<h1>youtube-dl</h2>
+
+<form action="" method="post" name="download">
+    {{ form.hidden_tag() }}
+    <p>
+    <table>
+    <tr>
+    <td>URL:</td><td>{{ form.url }}</td>
+    </tr>
+    </table>
+    <input type="submit" value="Download"><p>
+</form>
+
+
+
+
+
+{% endblock %}
