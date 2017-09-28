@@ -3,25 +3,23 @@
 #09/20/17
 
 import os
+import user
 import forms
 from functools import wraps
-from flask import Flask, g, render_template, Response, redirect, url_for
+from flask import Flask, g, render_template, Response, redirect, url_for, request
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 root = os.getcwd()
 
-class User(object):
-    def __init__(self, name=None):
-        self.name=name
-
-current_user = User()
+current_user = user.User()
 
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if current_user.name is None:
+        #if current_user.name is None:
+        if g.user:
             return redirect(url_for('login')) #, next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -36,10 +34,13 @@ def index():
 def login():
     form = forms.EmailPasswordForm()
     if form.validate_on_submit():
-        if form.email.data in ['james@here.com']:
-            if form.password.data in ['thisisatest']:
-                current_user.name = form.email.data
-                return redirect(url_for('index'))
+        #if form.email.data in ['james@here.com']:
+        #    if form.password.data in ['thisisatest']:
+        new_login = user.User(name=form.email.data)
+        if new_login.verify(passwd=form.password.data):
+            setattr(g, 'user', new_login)
+            current_user.name = form.email.data
+            return redirect(url_for('index'))
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET'])
