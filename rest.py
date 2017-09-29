@@ -3,6 +3,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 import json
+import bcrypt
 import pymongo
 import datetime
 
@@ -103,7 +104,7 @@ class Crypt(Resource):
     def post(self):
         args = parser.parse_args()
         plaintext = args['plaintext']
-        ciphertext = plaintext
+        ciphertext = bcrypt.hashpw(plaintext, bcrypt.gensalt())
         return ciphertext
     def put(self):
         return 'Crypt.put'
