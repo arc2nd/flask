@@ -97,6 +97,19 @@ class Weight(Resource):
     def delete(self):
         return 'Weight.delete'
 
+class Crypt(Resource):
+    def get(self):
+        return 'Crypt.get'
+    def post(self):
+        args = parser.parse_args()
+        plaintext = args['plaintext']
+        ciphertext = plaintext
+        return ciphertext
+    def put(self):
+        return 'Crypt.put'
+    def delete(self):
+        return 'Crypt.delete'
+
 ##add resources to api
 api.add_resource(SVG, '/chart/<date>')
 api.add_resource(BloodSugar, '/sugar')

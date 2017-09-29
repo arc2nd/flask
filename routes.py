@@ -5,21 +5,28 @@
 import os
 import user
 import forms
+import datetime
+import calendar
 from functools import wraps
-from flask import Flask, g, render_template, Response, redirect, url_for, request
+from flask import Flask, render_template, Response, redirect, url_for, request, session, flash
 
 app = Flask(__name__)
 app.config.from_object('config')
 
 root = os.getcwd()
 
-current_user = user.User()
+VERBOSITY = 1
+
+def _log(priority, msg):
+    if VERBOSITY >= priority:
+        print(msg)
 
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        #if current_user.name is None:
-        if g.user:
+        for i in session:
+            _log(6, i)
+        if 'logged_in' not in session:
             return redirect(url_for('login')) #, next=request.url))
         return f(*args, **kwargs)
     return decorated_function
@@ -29,24 +36,30 @@ def login_required(f):
 def index():
     return render_template('index.html')
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=["GET", "POST"])
 def login():
     form = forms.EmailPasswordForm()
     if form.validate_on_submit():
-        #if form.email.data in ['james@here.com']:
-        #    if form.password.data in ['thisisatest']:
         new_login = user.User(name=form.email.data)
+        _log(1, form.password.data)
         if new_login.verify(passwd=form.password.data):
-            setattr(g, 'user', new_login)
-            current_user.name = form.email.data
+            ts = calendar.timegm(datetime.datetime.now().timetuple())
+            session['user'] = new_login.to_dict()
+            session['logged_in'] = ts 
+            for i in session:
+                _log(6, i)
             return redirect(url_for('index'))
+        flash('wrong password')
     return render_template('login.html', form=form)
 
 @app.route('/logout', methods=['GET'])
 def logout():
-    current_user.name = None
-    return render_template('logout.html')
+    user_name = session['user']['name']
+    session.pop('user')
+    for i in session:
+        _log(6, i)
+    return render_template('logout.html', user=user_name)
 
 @app.route('/hello')
 @app.route('/hello/<name>')
@@ -77,7 +90,7 @@ def movies(root=''):
             dirs.append({'name':e, 'type':'file', 'size':size, 'path':working_path})
         elif os.path.islink(working_path):
             dirs.append({'name':e, 'type':'link'})
-    print(dirs)
+    _log(6, dirs)
     return render_template('movies.html', title='Movies', root=root, dirs=dirs)
 
 @app.route('/download', methods=['GET', 'POST'])

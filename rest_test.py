@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 
-from flask import Flask, request
+from flask import Flask
 from flask_restful import Resource, Api, reqparse
 from flask import make_response
+import requests
 
 ##Call Examples
 #curl http://localhost:5002/lo -X POST --data name=James --data msg=fingerberries
 #curl http://localhost:5002/lo -X GET
 #curl http://localhost:5002/dude/James
+
+#import requests
+#resp = requests.get('http://localhost:5002/lo')
+#resp = requests.post('http://localhost:5002/lo', data={'name':'James','msg':'fingerberries'})
+#resp = requests.get('http://localhost:5002/dude/James')
 
 ##make flask app
 app = Flask(__name__)

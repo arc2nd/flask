@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from flask_wtf import Form
-from wtforms import StringField, PasswordField
-from wtforms.validators import DataRequired, Email, URL, BooleanField
+from wtforms import StringField, PasswordField, BooleanField
+from wtforms.validators import DataRequired, Email, URL
 
 from wtforms.ext.csrf.session import SessionSecureForm
 import datetime
