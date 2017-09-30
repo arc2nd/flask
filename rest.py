@@ -2,6 +2,7 @@
 
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
+import sys
 import json
 import bcrypt
 import pymongo
@@ -32,6 +33,8 @@ parser.add_argument('time')
 parser.add_argument('value')
 parser.add_argument('high')
 parser.add_argument('low')
+parser.add_argument('plaintext')
+parser.add_argument('hash')
 
 ##info looks like:
 ##{'date': date, 'variable_name': variable_value}
@@ -103,19 +106,25 @@ class Crypt(Resource):
         return 'Crypt.get'
     def post(self):
         args = parser.parse_args()
-        plaintext = args['plaintext']
-        ciphertext = bcrypt.hashpw(plaintext, bcrypt.gensalt())
+        plaintext = str(args['plaintext'])
+        hashed = str(args['hash'])
+        print(hashed)
+        if hashed == 'None':
+            print('generating salt')
+            hashed = bcrypt.gensalt(8)
+        try:
+            ciphertext = bcrypt.hashpw(plaintext, hashed)
+        except:
+            ciphertext = sys.exc_info()
+        print(ciphertext)
         return ciphertext
-    def put(self):
-        return 'Crypt.put'
-    def delete(self):
-        return 'Crypt.delete'
 
 ##add resources to api
 api.add_resource(SVG, '/chart/<date>')
 api.add_resource(BloodSugar, '/sugar')
 api.add_resource(BloodPressure, '/pressure')
 api.add_resource(Weight, '/weight')
+api.add_resource(Crypt, '/crypt')
 
 if __name__ == '__main__':
     app.run(port=5002)

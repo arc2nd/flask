@@ -19,9 +19,9 @@ class User(object):
         #encrypt password and check against database
         #if so fill up all the possible fields from 
         #stored data
-        expected_passwd = self.get_pw_from_db(self.name) #who you say you are
-        crypted_passwd = passwd.strip() #self.encrypt_passwd(passwd) replace this with whatever encryption is being used
-        if crypted_passwd == expected_passwd:
+        expected_hashed = self.get_pw_from_db(self.name) #who you say you are
+        hashed_passwd = self.encrypt_passwd(passwd, expected_hashed) #replace this with whatever hashing is being used
+        if hashed_passwd != 'error' and hashed_passwd == expected_hashed:
             self.load_from_db(self.name)
             return True 
         else:
@@ -51,9 +51,20 @@ class User(object):
         return name
 
     #rest ops
-    def encrypt_passwd(self, plaintext):
-        #how are you encrypting passwords? I'm going to make a REST service
-        ciphertext = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext})
+    def encrypt_passwd(self, plaintext, hashed=None):
+        #how are you hashing passwords? I'm using a REST service
+        resp = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
+        ##process response for extraneous characters
+        if resp.ok:
+            ciphertext = resp.text
+            if ciphertext.endswith('\n'):
+                ciphertext = ciphertext[:-2]
+            if ciphertext.startswith('"'):
+                ciphertext = ciphertext[1:]
+            if ciphertext.endswith('"'):
+                ciphertext = ciphertext[:-1]
+        else:
+            ciphertext = 'error'
         return ciphertext
 
     #user ops
