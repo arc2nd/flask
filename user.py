@@ -1,8 +1,20 @@
 #!/usr/bin/env python
 
+
+##>>> me = user.User('name')
+##>>> me_dict = me.to_dict()
+##>>> import pymongo
+##>>> client = pymongo.MongoClient()
+##>>> db = client.members
+##>>> all_users = db.users
+##>>> rec_id = all_users.insert_one(me_dict)
+
 import pymongo
 import datetime
 import requests
+
+SERVER_LOGIN = os.environ['mgd_login']
+SERVER_PASS = os.environ['mgd_pass']
 
 class User(object):
     def __init__(self, name=None):
@@ -14,6 +26,13 @@ class User(object):
         self.dob = None
         self.timeout = 20
         self.pw_hash = None
+        self.db = self.make_db_conn()
+
+    def make_db_conn(self):
+        client = pymongo.MongoClient('mongodb://{}:{}@alaric.local'.format(SERVER_LOGIN, SERVER_PASS))
+        db = client.members
+        all_users = db.users
+        return all_users
 
     #CRUD ops
     def verify(self, passwd=None):
@@ -42,10 +61,16 @@ class User(object):
 
     def get_pw_from_db(self, name):
         #talk to the db, and get the stored encrypted password for this user
-        if name == 'james@here.com':
-            return 'thisisatest'
+        check_dict = {'name':self.name}
+        print(type(self.db))
+        records = self.db.find_one(check_dict)
+        if records:
+            if records.has_key('pw_hash'):
+                return records['pw_hash']
+            else:
+                return 'error'
         else:
-            return 'notthatone'
+            print(records)
 
     def load_from_db(self, name):
         #talk to the db, load all the attrs for this name into the current object
