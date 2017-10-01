@@ -13,6 +13,7 @@ class User(object):
         self.middle_name = None
         self.dob = None
         self.timeout = 20
+        self.pw_hash = None
 
     #CRUD ops
     def verify(self, passwd=None):
@@ -53,7 +54,7 @@ class User(object):
     #rest ops
     def encrypt_passwd(self, plaintext, hashed=None):
         #how are you hashing passwords? I'm using a REST service
-        resp = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
+        resp = requests.post('http://alaric.local:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
         ##process response for extraneous characters
         if resp.ok:
             ciphertext = resp.text
@@ -81,6 +82,7 @@ class User(object):
         u_dict['last_name'] = self.last_name
         u_dict['dob'] = self.dob
         u_dict['timeout'] = self.timeout
+        u_dict['pw_hash'] = self.pw_hash
         return u_dict
         
     def from_dict(self, u_dict):
@@ -91,4 +93,5 @@ class User(object):
         self.last_name = u_dict['last_name']
         self.dob = u_dict['dob']
         self.timeout = u_dict['timeout']
+        self.pw_hash = u_dict['pw_hash']
 
