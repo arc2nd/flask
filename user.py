@@ -9,6 +9,7 @@
 ##>>> all_users = db.users
 ##>>> rec_id = all_users.insert_one(me_dict)
 
+import os
 import pymongo
 import datetime
 import requests
@@ -29,8 +30,9 @@ class User(object):
         self.db = self.make_db_conn()
 
     def make_db_conn(self):
-        client = pymongo.MongoClient('mongodb://{}:{}@alaric.local'.format(SERVER_LOGIN, SERVER_PASS))
-        db = client.members
+        client = pymongo.MongoClient()
+        #client = pymongo.MongoClient('mongodb://{}:{}@localhost'.format(SERVER_LOGIN, SERVER_PASS))
+        db = client.website
         all_users = db.users
         return all_users
 
@@ -39,7 +41,7 @@ class User(object):
         #encrypt password and check against database
         #if so fill up all the possible fields from 
         #stored data
-        expected_hashed = self.get_pw_from_db(self.name) #who you say you are
+        expected_hashed = self.get_pw_from_db() #who you say you are
         hashed_passwd = self.encrypt_passwd(passwd, expected_hashed) #replace this with whatever hashing is being used
         if hashed_passwd != 'error' and hashed_passwd == expected_hashed:
             self.load_from_db(self.name)
@@ -59,18 +61,14 @@ class User(object):
         #delete user from database
         return
 
-    def get_pw_from_db(self, name):
+    def get_pw_from_db(self):
         #talk to the db, and get the stored encrypted password for this user
         check_dict = {'name':self.name}
-        print(type(self.db))
-        records = self.db.find_one(check_dict)
-        if records:
-            if records.has_key('pw_hash'):
-                return records['pw_hash']
-            else:
-                return 'error'
+        resp = requests.post('http://localhost:5002/hash', check_dict)
+        if resp.ok:
+            return resp.text[1:-2]
         else:
-            print(records)
+            print('error')
 
     def load_from_db(self, name):
         #talk to the db, load all the attrs for this name into the current object
@@ -79,7 +77,7 @@ class User(object):
     #rest ops
     def encrypt_passwd(self, plaintext, hashed=None):
         #how are you hashing passwords? I'm using a REST service
-        resp = requests.post('http://alaric.local:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
+        resp = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
         ##process response for extraneous characters
         if resp.ok:
             ciphertext = resp.text
@@ -91,6 +89,7 @@ class User(object):
                 ciphertext = ciphertext[:-1]
         else:
             ciphertext = 'error'
+        self.pw_hash=ciphertext
         return ciphertext
 
     #user ops
