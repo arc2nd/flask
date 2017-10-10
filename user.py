@@ -10,12 +10,19 @@
 ##>>> rec_id = all_users.insert_one(me_dict)
 
 import os
+import sys
+import bcrypt
 import pymongo
 import datetime
 import requests
 
-SERVER_LOGIN = os.environ['mgd_login']
-SERVER_PASS = os.environ['mgd_pass']
+try:
+    SERVER_LOGIN = os.environ['mgd_login']
+    SERVER_PASS = os.environ['mgd_pass']
+except:
+    SERVER_LOGIN = None
+    SERVER_PASS = None
+    print('server login and password envVars not set: mgd_login, mgd_pass')
 
 class User(object):
     def __init__(self, name=None):
@@ -28,6 +35,12 @@ class User(object):
         self.timeout = 20
         self.pw_hash = None
         self.db = self.make_db_conn()
+
+        self.verbosity = 1
+
+    def _log(self, priority, msg):
+        if self.verbosity > priority:
+            print(msg)
 
     def make_db_conn(self):
         client = pymongo.MongoClient()
@@ -76,19 +89,22 @@ class User(object):
 
     #rest ops
     def encrypt_passwd(self, plaintext, hashed=None):
+        self._log(6, hashed)
+        if not hashed:
+            hashed = bcrypt.gensalt(8)
+        try:
+            ciphertext = bcrypt.hashpw(str(plaintext), str(hashed))
+        except:
+            ciphertext = 'bad salt: {}'.format(sys.exc_info())
+
         #how are you hashing passwords? I'm using a REST service
-        resp = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
+        #resp = requests.post('http://localhost:5002/crypt', data={'plaintext': plaintext, 'hash':hashed})
         ##process response for extraneous characters
-        if resp.ok:
-            ciphertext = resp.text
-            if ciphertext.endswith('\n'):
-                ciphertext = ciphertext[:-2]
-            if ciphertext.startswith('"'):
-                ciphertext = ciphertext[1:]
-            if ciphertext.endswith('"'):
-                ciphertext = ciphertext[:-1]
-        else:
-            ciphertext = 'error'
+        #if resp.ok:
+        #    ciphertext = resp.text[1:-2]
+        #else:
+        #    ciphertext = 'error'
+        self._log(6, ciphertext)
         self.pw_hash=ciphertext
         return ciphertext
 
@@ -96,6 +112,13 @@ class User(object):
     def get_age(self):
         #calculate age
         return
+
+    def change_passwd(self, new_pass1=None, new_pass2=None, old_pass=None):
+        if new_pass1 == new_pass2:
+            if self.verify(old_pass):
+                new_hash = self.encrypt_passwd(new_pass)
+                self.pw_hash = new_hash
+                self.update({'pw_hash': self.pw_hash})
 
     def to_dict(self):
         u_dict = {}

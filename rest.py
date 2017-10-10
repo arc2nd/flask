@@ -118,7 +118,8 @@ class Crypt(Resource):
         try:
             ciphertext = bcrypt.hashpw(plaintext, hashed)
         except:
-            ciphertext = sys.exc_info()
+            #ciphertext = sys.exc_info()
+            ciphertext = 'bad salt: {}'.format(sys.exc_info())
         print(ciphertext)
         return ciphertext
 
