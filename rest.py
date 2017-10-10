@@ -26,6 +26,8 @@ api = Api(app)
 
 ##setup parser and accepted arguments
 parser = reqparse.RequestParser()
+parser.add_argument('name')
+parser.add_argument('user')
 parser.add_argument('start_date')
 parser.add_argument('end_data')
 parser.add_argument('date')
@@ -107,17 +109,38 @@ class Crypt(Resource):
     def post(self):
         args = parser.parse_args()
         plaintext = str(args['plaintext'])
+        #print(args['hash'])
         hashed = str(args['hash'])
-        print(hashed)
+        #print(hashed)
         if hashed == 'None':
             print('generating salt')
             hashed = bcrypt.gensalt(8)
         try:
             ciphertext = bcrypt.hashpw(plaintext, hashed)
         except:
-            ciphertext = sys.exc_info()
+            #ciphertext = sys.exc_info()
+            ciphertext = 'bad salt: {}'.format(sys.exc_info())
         print(ciphertext)
         return ciphertext
+
+class UserHash(Resource):
+    def post(self):
+        args = parser.parse_args()
+        user = str(args['name'])
+        print(user)
+        client = pymongo.MongoClient()
+        all_users = client.website.users
+        check_dict = {'name':user}
+        records = all_users.find_one(check_dict)
+        print(records)
+        if records:
+            if records.has_key('pw_hash'):
+                print(records['pw_hash'])
+                return records['pw_hash']
+            else:
+                return 'error: key'
+        else:
+            return 'error: records'
 
 ##add resources to api
 api.add_resource(SVG, '/chart/<date>')
@@ -125,6 +148,7 @@ api.add_resource(BloodSugar, '/sugar')
 api.add_resource(BloodPressure, '/pressure')
 api.add_resource(Weight, '/weight')
 api.add_resource(Crypt, '/crypt')
+api.add_resource(UserHash, '/hash')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5002)
