@@ -7,6 +7,7 @@ import user
 import forms
 import datetime
 import calendar
+import commands
 from functools import wraps
 from flask import Flask, render_template, Response, redirect, url_for, request, session, flash
 
@@ -74,7 +75,7 @@ def hello(name=None):
 
 @app.route('/movies', methods=['GET'])
 @app.route('/movies/<root>', methods=['GET'])
-@login_required
+#@login_required
 def movies(root=''):
     working_dir = os.path.join(os.path.expanduser('~'), root)
     dir_contents = os.listdir(working_dir)
@@ -94,22 +95,26 @@ def movies(root=''):
     return render_template('movies.html', title='Movies', root=root, dirs=dirs)
 
 @app.route('/download', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def download():
     ##take in a url and run youtube-dl on it
     form = forms.UrlForm()
     if form.validate_on_submit():
         cmd = 'youtube-dl {}'.format(form.url.data)
+	status, output = commands.getstatusoutput(cmd)
+	print('status: {}\noutput: {}\n'.format(status, output))
         return redirect(url_for('submit_success'))
     return render_template('download.html', form=form)
 
 @app.route('/convert', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def convert():
     ##take in a url and run convert2audio on it
     form = forms.UrlForm()
     if form.validate_on_submit():
-        cmd = 'convert2audio -u {}'.format(form.url.data)
+        cmd = 'python /home/pi/scripts/convertToAudio.py -u {}'.format(form.url.data)
+	status, output = commands.getstatusoutput(cmd)
+	print('status: {}\noutput: {}\n'.format(status, output))
         return redirect(url_for('submit_success'))
     return render_template('convert.html', form=form)
 
@@ -118,19 +123,19 @@ def submit_success():
     return render_template('submit_success.html')
 
 @app.route('/a')
-@login_required
+#@login_required
 def a():
     return render_template('a.html', title='A\'s Landing Page')
 @app.route('/j')
-@login_required
+#@login_required
 def j():
     return render_template('j.html', title='J\'s Landing Page')
 @app.route('/e')
-@login_required
+#@login_required
 def e():
     return render_template('e.html', title='E\'s Landing Page')
 @app.route('/f')
-@login_required
+#@login_required
 def f():
     return render_template('f.html', title='F\'s Landing Page')
 
