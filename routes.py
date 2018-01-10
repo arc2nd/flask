@@ -7,6 +7,7 @@ import user
 import forms
 import datetime
 import calendar
+import commands
 from functools import wraps
 from flask import Flask, render_template, Response, redirect, url_for, request, session, flash
 
@@ -94,22 +95,26 @@ def movies(root=''):
     return render_template('movies.html', title='Movies', root=root, dirs=dirs)
 
 @app.route('/download', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def download():
     ##take in a url and run youtube-dl on it
     form = forms.UrlForm()
     if form.validate_on_submit():
         cmd = 'youtube-dl {}'.format(form.url.data)
+	status, output = commands.getstatusoutput(cmd)
+	print('status: {}\noutput: {}\n'.format(status, output))
         return redirect(url_for('submit_success'))
     return render_template('download.html', form=form)
 
 @app.route('/convert', methods=['GET', 'POST'])
-@login_required
+#@login_required
 def convert():
     ##take in a url and run convert2audio on it
     form = forms.UrlForm()
     if form.validate_on_submit():
-        cmd = 'convert2audio -u {}'.format(form.url.data)
+        cmd = 'python /home/administrator/scripts/convertToAudio.py -u {}'.format(form.url.data)
+	status, output = commands.getstatusoutput(cmd)
+	print('status: {}\noutput: {}\n'.format(status, output))
         return redirect(url_for('submit_success'))
     return render_template('convert.html', form=form)
 
