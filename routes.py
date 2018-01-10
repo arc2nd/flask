@@ -112,7 +112,7 @@ def convert():
     ##take in a url and run convert2audio on it
     form = forms.UrlForm()
     if form.validate_on_submit():
-        cmd = 'python /home/pi/scripts/convertToAudio.py -u {}'.format(form.url.data)
+        cmd = 'python {} -u {}'.format(os.path.expanduser('~/scripts/converToAudio.py'), form.url.data)
 	status, output = commands.getstatusoutput(cmd)
 	print('status: {}\noutput: {}\n'.format(status, output))
         return redirect(url_for('submit_success'))
