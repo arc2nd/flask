@@ -8,6 +8,7 @@ import forms
 import datetime
 import calendar
 import commands
+import config
 from functools import wraps
 from flask import Flask, render_template, Response, redirect, url_for, request, session, flash
 
@@ -82,7 +83,7 @@ def movies(root=''):
     dir_contents.sort()
     dirs = []
     for e in dir_contents:
-        print e
+        #print e
         working_path = os.path.join(working_dir, e)
         if os.path.isdir(working_path):
             dirs.append({'name':e, 'type':'dir', 'path':working_path})

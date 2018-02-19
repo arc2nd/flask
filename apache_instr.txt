@@ -1,0 +1,37 @@
+Instructions for making a apache/flask app
+
+make a run.py for your app in the a folder with the app's name <app_name>
+put that folder in /var/www/wsgi_scripts
+make a file <app_name>.wsgi
+    #!/usr/bin/python
+    import sys
+    import logging
+    logging.basicConfig(stream=sys.stderr)
+    sys.path.insert(0,"/var/www/wsgi_scripts/parksnet/")
+
+    from app.routes import app as application
+    application.secret_key = 'thisisatest'
+
+
+in /etc/apache2/sites-available make <app_name>.conf
+    <VirtualHost *:80>
+        ServerName jamestest.com
+        ServerAdmin administrator@jamestest.com
+        WSGIScriptAlias / /var/www/wsgi_scripts/<app_name>/<app_name>.wsgi
+        <Directory /var/www/wsgi_scripts/<app_name>/>
+            Order allow,deny
+            Allow from all
+        </Directory>
+        Alias /static /var/www/wsgi_scripts/<app_name>/static
+        <Directory /var/www/wsgi_scripts/<app_name>/static/>
+            Order allow,deny
+            Allow from all
+        </Directory>
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        LogLevel warn
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
+
+run 'a2ensite <app_name>'
+
+run 'sudo service apache2 restart'
