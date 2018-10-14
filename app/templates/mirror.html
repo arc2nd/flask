@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+function startTime() {
+    var today = new Date();
+    var h = today.getHours();
+    var m = today.getMinutes();
+    var s = today.getSeconds();
+    h = checkTime(h);
+    m = checkTime(m);
+    s = checkTime(s);
+    document.getElementById('txt').innerHTML =
+    h + ":" + m // + ":" + s;
+    var t = setTimeout(startTime, 500);
+}
+function checkTime(i) {
+    if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+</script>
+
+<style>
+body{background:#000000}
+.clock{
+    background:#000000;
+    color:#0055FF;
+    font-size:300px;
+    font-family:arial;
+    text-align:center;
+}
+</style>
+<body onload="startTime()">
+<!--- <div style="font-size:300px"> --->
+<!--- 
+body{background-color=#000000;
+    font-family: arial}
+ --->
+<div id="txt" class="clock"></div>
+<!--- </div> --->
+
+
+{% endblock %}

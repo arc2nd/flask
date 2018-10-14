@@ -3,6 +3,8 @@
 #09/20/17
 
 import os
+import sys
+import json
 import user
 import forms
 import datetime
@@ -10,7 +12,14 @@ import calendar
 import commands
 import config
 from functools import wraps
+
 from flask import Flask, render_template, Response, redirect, url_for, request, session, flash
+
+sys.path.insert(1, '/usr/lib/python2.7/site-packages')
+
+from pellets.DurableMessenger import *
+
+my_msgr = DurableMessenger()
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -33,12 +42,13 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/index')
-@login_required
+#@login_required
 def index():
     return render_template('index.html')
 
-@app.route('/', methods=['GET', 'POST'])
+#@app.route('/', methods=['GET', 'POST'])
 @app.route('/login', methods=["GET", "POST"])
 def login():
     form = forms.EmailPasswordForm()
@@ -53,7 +63,7 @@ def login():
                 _log(6, i)
             return redirect(url_for('index'))
         flash('wrong password')
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, footer='False')
 
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -101,10 +111,16 @@ def download():
     ##take in a url and run youtube-dl on it
     form = forms.UrlForm()
     if form.validate_on_submit():
-        cmd = 'youtube-dl {}'.format(form.url.data)
-	status, output = commands.getstatusoutput(cmd)
-	print('status: {}\noutput: {}\n'.format(status, output))
-        return redirect(url_for('submit_success'))
+        my_conn = my_msgr.get_conn()
+        my_chan = my_msgr.make_channel(my_conn, 'mail_check')
+        msg = {'command': 'dl', 'arguments': form.url.data}
+        msg_str = json.dumps(msg)
+        my_msgr.send_message(my_conn, 'mail_check', msg_str)
+
+        # cmd = 'youtube-dl {}'.format(form.url.data)
+    # status, output = commands.getstatusoutput(cmd)
+    # print('status: {}\noutput: {}\n'.format(status, output))
+        return redirect(url_for('dl_success'))
     return render_template('download.html', form=form)
 
 @app.route('/convert', methods=['GET', 'POST'])
@@ -113,32 +129,53 @@ def convert():
     ##take in a url and run convert2audio on it
     form = forms.UrlForm()
     if form.validate_on_submit():
-        cmd = 'python {} -u {}'.format(os.path.expanduser('~/scripts/convertToAudio.py'), form.url.data)
-	status, output = commands.getstatusoutput(cmd)
-	print('status: {}\noutput: {}\n'.format(status, output))
-        return redirect(url_for('submit_success'))
+        my_conn = my_msgr.get_conn()
+        my_chan = my_msgr.make_channel(my_conn, 'mail_check')
+        msg = {'command': 'convert', 'arguments': form.url.data}
+        msg_str = json.dumps(msg)
+        my_msgr.send_message(my_conn, 'mail_check', msg_str)
+
+        # cmd = 'python {} -u {}'.format(os.path.expanduser('~/scripts/convertToAudio.py'), form.url.data)
+    # status, output = commands.getstatusoutput(cmd)
+    # print('status: {}\noutput: {}\n'.format(status, output))
+        return redirect(url_for('convert_success'))
     return render_template('convert.html', form=form)
 
-@app.route('/submit_success', methods=['GET'])
-def submit_success():
-    return render_template('submit_success.html')
+@app.route('/convert_success', methods=['GET'])
+def convert_success():
+    return render_template('convert_success.html')
+@app.route('/dl_success', methods=['GET'])
+def dl_success():
+    return render_template('dl_success.html')
 
 @app.route('/a')
 #@login_required
 def a():
-    return render_template('a.html', title='A\'s Landing Page')
+    return render_template('a.html', title='Andrea\'s Landing Page')
 @app.route('/j')
 #@login_required
 def j():
-    return render_template('j.html', title='J\'s Landing Page')
+    return render_template('j.html', title='James\'s Landing Page')
 @app.route('/e')
 #@login_required
 def e():
-    return render_template('e.html', title='E\'s Landing Page')
+    return render_template('e.html', title='Ember\'s Landing Page')
 @app.route('/f')
 #@login_required
 def f():
-    return render_template('f.html', title='F\'s Landing Page')
+    return render_template('f.html', title='Fletcher\'s Landing Page')
+
+
+@app.route('/mirror')
+def mirror():
+    return render_template('mirror.html', title='MagicMirror', footer='False')
+@app.route('/chores')
+def chores():
+    return render_template('chores.html', title='Household Chores')
+
+@app.route('/path')
+def path():
+    return render_template('path.html', var=sys.path)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

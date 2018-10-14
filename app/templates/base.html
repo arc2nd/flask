@@ -1,24 +1,33 @@
 <html>
 <head>
 {% if title %}
-<title>{{ title }}</title>
+    <title>{{ title }}</title>
 {% else %}
-<title>Welcome to P-net</title>
+    <title>Welcome to P-net</title>
 {% endif %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!---<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="../static/bootstrap_lux.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
 </head>
 <body bgcolor=#777777 link=#00eeee alink=#ffffff vlink=#00bbbb>
+<div style="margin-left:50px; margin-right:50px;margin-top:50px;margin-bot:50px;">
+    <h1>{{ title }}</h1>
 
-<h1>{{ title }}</h1>
+    {% block content %}{% endblock %}
 
-{% block content %}{% endblock %}
-
-<center>
-<a href="{{ url_for('index') }}">Index</a> | 
-<a href="{{ url_for('hello') }}">Hello</a> | 
-<a href="{{ url_for('movies') }}">Movies</a> || 
-<a href="{{ url_for('logout') }}">Logout</a>
-</center>
-<p>
+    <center>
+    <a href="{{ url_for('index') }}">Index</a> | 
+    <a href="{{ url_for('chores') }}">Chores</a> | 
+    <a href="{{ url_for('movies') }}">Movies</a> || 
+    <a href="{{ url_for('logout') }}">Logout</a>
+    </center>
+    <p>
+</div>
 
 </body>
 </html>

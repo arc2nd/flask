@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>You've succcessfully submitted a URL</h1>
+<p>
+<meta http-equiv="refresh" content="3;{{ url_for('download') }}" />
+You will be redirected back to the convert page in 3 seconds.<p>
+<a href="{{ url_for('login') }}">back to login</a>
+
+{% endblock %}

@@ -1,20 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Welcome to P-net</h1>
+<div class="jumbotron text-center">
+    <h1>Welcome to Parks-net</h1>
 
 This is where we access all our media and family stuff
-<p>
-Family Members:
-<ul>
-<li><a href="{{ url_for('a') }}">A____</a>
-<li><a href="{{ url_for('j') }}">J____</a>
-<li><a href="{{ url_for('e') }}">E____</a>
-<li><a href="{{ url_for('f') }}">F____</a>
-</ul>
+</div>
 
-<a href="{{ url_for('download') }}">Download</a><br>
-<a href="{{ url_for('convert') }}">Convert</a><br>
 
+<div style="margin-left:50px; margin-right:50px;">
+    Family Members:
+    <ul>
+    <li><a href="{{ url_for('a') }}">Andrea</a>
+    <li><a href="{{ url_for('j') }}">James</a>
+    <li><a href="{{ url_for('e') }}">Ember</a>
+    <li><a href="{{ url_for('f') }}">Fletcher</a>
+    </ul>
+
+    <a href="{{ url_for('chores') }}">Chores</a><br>
+    <a href="{{ url_for('download') }}">Download</a><br>
+    <a href="{{ url_for('convert') }}">Convert</a><br>
+    <a href="{{ url_for('mirror') }}">Clock</a><br>
+
+</div>
 {% endblock %}
 
